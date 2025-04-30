@@ -18,7 +18,16 @@ public class RoadEditor : Editor
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 Undo.RecordObject(road, "Add Road Point");
-                road.points.Add(hit.point);
+                Vector3 newPoint = hit.point;
+                if (road.isMajorRoad)
+                {
+                    newPoint.y += 0.03f;
+                }
+                else
+                {
+                    newPoint.y += 0.01f;
+                }
+                road.points.Add(newPoint);
                 Event.current.Use();
             }
         }

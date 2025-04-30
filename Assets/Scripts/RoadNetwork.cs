@@ -38,17 +38,24 @@ public class RoadNetwork : MonoBehaviour
     }
 
     [MenuItem("Roads/Delete All Roads")]
-    public void DeleteAllRoads()
+    public static void DeleteAllRoads()
     {
-        Undo.RecordObject(this, "Delete all roads");
+        RoadNetwork network = Selection.activeGameObject?.GetComponent<RoadNetwork>();
+        if (network == null)
+        {
+            Debug.LogError("No RoadNetwork selected.");
+            return;
+        }
+
+        Undo.RecordObject(network, "Delete all roads");
         // Create temp list to avoid modification during iteration
-        var roadsToDelete = new List<Road>(allRoads);
+        var roadsToDelete = new List<Road>(network.allRoads);
         foreach (var road in roadsToDelete)
         {
             if (road != null)
                 Undo.DestroyObjectImmediate(road.gameObject);
         }
-        allRoads.Clear();
+        network.allRoads.Clear();
     }
     
 }
