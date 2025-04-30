@@ -16,6 +16,8 @@ public class Road : MonoBehaviour
     {
         if (points.Count < 2) return;
 
+        List<Vector3> subdividedPoints = SubdividePointsForSharpTurns(points);
+
         Mesh mesh = new Mesh();
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -24,20 +26,20 @@ public class Road : MonoBehaviour
         // Calculate road length for UV mapping
         float totalLength = 0;
         List<float> cumulativeLengths = new List<float> { 0 };
-        for (int i = 1; i < points.Count; i++)
+        for (int i = 1; i < subdividedPoints.Count; i++)
         {
-            totalLength += Vector3.Distance(points[i-1], points[i]);
+            totalLength += Vector3.Distance(subdividedPoints[i - 1], subdividedPoints[i]);
             cumulativeLengths.Add(totalLength);
         }
 
         Vector3 prevForward = Vector3.forward;
-        for (int i = 0; i < points.Count; i++)
+        for (int i = 0; i < subdividedPoints.Count; i++)
         {
             // Calculate smooth forward direction
             Vector3 forward = Vector3.zero;
-            if (i < points.Count - 1) forward += (points[i + 1] - points[i]).normalized;
-            if (i > 0) forward += (points[i] - points[i - 1]).normalized;
-            
+            if (i < subdividedPoints.Count - 1) forward += (subdividedPoints[i + 1] - subdividedPoints[i]).normalized;
+            if (i > 0) forward += (subdividedPoints[i] - subdividedPoints[i - 1]).normalized;
+
             if (forward == Vector3.zero) forward = prevForward;
             forward.Normalize();
             prevForward = forward;
@@ -46,8 +48,8 @@ public class Road : MonoBehaviour
             Vector3 right = Vector3.Cross(forward, Vector3.up).normalized * width;
 
             // Add vertices with stable offset
-            vertices.Add(points[i] + right);
-            vertices.Add(points[i] - right);
+            vertices.Add(subdividedPoints[i] + right);
+            vertices.Add(subdividedPoints[i] - right);
 
             // Fixed UVs (flipped V component)
             float uvU = totalLength > 0 ? cumulativeLengths[i] / totalLength : 0;
@@ -61,7 +63,7 @@ public class Road : MonoBehaviour
                 triangles.Add(count - 4);
                 triangles.Add(count - 2);
                 triangles.Add(count - 3);
-                
+
                 triangles.Add(count - 2);
                 triangles.Add(count - 1);
                 triangles.Add(count - 3);
@@ -75,12 +77,43 @@ public class Road : MonoBehaviour
         meshFilter.mesh = mesh;
     }
 
+    private List<Vector3> SubdividePointsForSharpTurns(List<Vector3> points)
+    {
+        List<Vector3> subdividedPoints = new List<Vector3> { points[0] };
+
+        for (int i = 1; i < points.Count - 1; i++)
+        {
+            Vector3 prevDir = (points[i] - points[i - 1]).normalized;
+            Vector3 nextDir = (points[i + 1] - points[i]).normalized;
+            float angle = Vector3.Angle(prevDir, nextDir);
+
+            if (angle > curveThreshold)
+            {
+                // Subdivide the segment
+                int subdivisions = Mathf.CeilToInt(angle / curveThreshold);
+                for (int j = 1; j <= subdivisions; j++)
+                {
+                    float t = j / (float)(subdivisions + 1);
+                    Vector3 newPoint = Vector3.Lerp(points[i], points[i + 1], t);
+                    subdividedPoints.Add(newPoint);
+                }
+            }
+            else
+            {
+                subdividedPoints.Add(points[i]);
+            }
+        }
+
+        subdividedPoints.Add(points[points.Count - 1]);
+        return subdividedPoints;
+    }
+
     public List<LineSegment> GetSegments()
     {
         List<LineSegment> segments = new List<LineSegment>();
-        for(int i = 0; i < points.Count - 1; i++)
+        for (int i = 0; i < points.Count - 1; i++)
         {
-            segments.Add(new LineSegment(points[i], points[i+1]));
+            segments.Add(new LineSegment(points[i], points[i + 1]));
         }
         return segments;
     }
@@ -91,6 +124,4 @@ public class Road : MonoBehaviour
         if (FindObjectOfType<RoadNetwork>())
             FindObjectOfType<RoadNetwork>().allRoads.Remove(this);
     }
-
-    
 }
