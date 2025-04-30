@@ -41,12 +41,16 @@ public class RoadNetwork : MonoBehaviour
     public void DeleteAllRoads()
     {
         Undo.RecordObject(this, "Delete all roads");
-        foreach(var road in allRoads)
+        // Create temp list to avoid modification during iteration
+        var roadsToDelete = new List<Road>(allRoads);
+        foreach (var road in roadsToDelete)
         {
-            Undo.DestroyObjectImmediate(road.gameObject);
+            if (road != null)
+                Undo.DestroyObjectImmediate(road.gameObject);
         }
         allRoads.Clear();
     }
+    
 }
 
 public struct LineSegment

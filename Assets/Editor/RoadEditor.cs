@@ -5,6 +5,8 @@ using UnityEngine;
 public class RoadEditor : Editor
 {
     private Road road;
+    private Transform handleTransform;
+    private Quaternion handleRotation;
     private void OnSceneGUI()
     {
         road = (Road)target;
@@ -19,6 +21,32 @@ public class RoadEditor : Editor
                 road.points.Add(hit.point);
                 Event.current.Use();
             }
+        }
+
+        handleTransform = road.transform;
+        handleRotation = Tools.pivotRotation == PivotRotation.Local ? 
+        handleTransform.rotation : Quaternion.identity;
+
+        for (int i = 0; i < road.points.Count; i++)
+        {
+            // Draw position handle
+            Vector3 point = handleTransform.TransformPoint(road.points[i]);
+            EditorGUI.BeginChangeCheck();
+            point = Handles.PositionHandle(point, handleRotation);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(road, "Move Road Point");
+                road.points[i] = handleTransform.InverseTransformPoint(point);
+                road.GenerateRoadMesh();
+            }
+
+            // Draw sphere handle
+            Handles.color = Color.yellow;
+            float handleSize = HandleUtility.GetHandleSize(point) * 0.15f;
+            // if (Handles.Button(point, handleRotation, handleSize, handleSize, Handles.SphereHandleCap))
+            // {
+            //     // point deletion logic here
+            // }
         }
     }
 }

@@ -30,27 +30,29 @@ public class Road : MonoBehaviour
             cumulativeLengths.Add(totalLength);
         }
 
+        Vector3 prevForward = Vector3.forward;
         for (int i = 0; i < points.Count; i++)
         {
+            // Calculate smooth forward direction
             Vector3 forward = Vector3.zero;
+            if (i < points.Count - 1) forward += (points[i + 1] - points[i]).normalized;
+            if (i > 0) forward += (points[i] - points[i - 1]).normalized;
             
-            // Calculate direction with curve smoothing
-            if (i < points.Count - 1)
-                forward += points[i + 1] - points[i];
-            if (i > 0)
-                forward += points[i] - points[i - 1];
-            
+            if (forward == Vector3.zero) forward = prevForward;
             forward.Normalize();
-            Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+            prevForward = forward;
 
-            // Add vertices
-            vertices.Add(points[i] + right * width);
-            vertices.Add(points[i] - right * width);
+            // Get stable right vector using cross product with world up
+            Vector3 right = Vector3.Cross(forward, Vector3.up).normalized * width;
 
-            // Add UVs
+            // Add vertices with stable offset
+            vertices.Add(points[i] + right);
+            vertices.Add(points[i] - right);
+
+            // Fixed UVs (flipped V component)
             float uvU = totalLength > 0 ? cumulativeLengths[i] / totalLength : 0;
-            uvs.Add(new Vector2(uvU, 0));
-            uvs.Add(new Vector2(uvU, 1));
+            uvs.Add(new Vector2(uvU, 1));  // Top edge
+            uvs.Add(new Vector2(uvU, 0));  // Bottom edge
 
             // Create triangles
             if (i > 0)
@@ -81,6 +83,13 @@ public class Road : MonoBehaviour
             segments.Add(new LineSegment(points[i], points[i+1]));
         }
         return segments;
+    }
+
+    [System.Obsolete]
+    private void OnDestroy()
+    {
+        if (FindObjectOfType<RoadNetwork>())
+            FindObjectOfType<RoadNetwork>().allRoads.Remove(this);
     }
 
     
