@@ -53,340 +53,278 @@ public class House : MonoBehaviour
     /// </summary>
     public void GenerateHouse()
     {
-        // Wipe existing mesh objects before generating
         WipeHouse();
-
-        // Initialize the deterministic random number generator
         random = new System.Random(seed);
 
-        // Determine corner type (rounded or straight)
         bool useRoundedCorners = random.NextDouble() < 0.5;
         chosenCornerWallPrefab = useRoundedCorners ? GetRandomPrefab(roundedCornerWallPrefabs) : GetRandomPrefab(straightCornerWallPrefabs);
         chosenCornerRoofPrefab = useRoundedCorners ? roundedCornerRoofPrefab : straightCornerRoofPrefab;
+        chosenWindowPrefabType = GetRandomPrefab(windowPrefabs);
+        chosenBalconyPrefabType = GetRandomPrefab(balconyWallPrefabs);
 
-
-        // Determine the types of windows and balconies to use for this house
-        chosenWindowPrefabType = GetRandomPrefab(windowPrefabs); // Choose one window type for the whole house
-        chosenBalconyPrefabType = GetRandomPrefab(balconyWallPrefabs); // Choose one balcony type for the whole house
-
-
-        // Calculate grid dimensions (in 2x2 prefab units)
         int lengthSegments = Mathf.RoundToInt(houseLength / 2f);
         int widthSegments = Mathf.RoundToInt(houseWidth / 2f);
+        const float prefabSize = 2f;
+        const float prefabHeight = 3f;
 
-        // Prefab size is 2x2x3
-        const float prefabSize = 2f; // Horizontal size (x and z)
-        const float prefabHeight = 3f; // Vertical size (y)
-
-        // Offset to center the house around its transform position
         Vector3 centerOffset = new Vector3(
             -(widthSegments * prefabSize) / 2f + prefabSize / 2f,
             0,
             -(lengthSegments * prefabSize) / 2f + prefabSize / 2f
         );
 
-        // Store positions where a door has been placed on the ground floor
         List<Vector3> groundFloorDoorPositions = new List<Vector3>();
-        int doorsToPlace = 1; // Ensure at least one door
+        int doorsToPlace = 1;
 
-        // Iterate through the grid and place prefabs
-        for (int h = 0; h < houseHeight; h++) // Height levels (0 to houseHeight - 1)
+        for (int h = 0; h < houseHeight; h++)
         {
-            // Determine the type of window/balcony to use for this floor (if applicable)
             GameObject currentFloorWindowPrefab = null;
             GameObject currentFloorBalconyPrefab = null;
-            if (h < houseHeight - 1) // Not the roof floor
+            if (h < houseHeight - 1)
             {
-                // Randomly choose between normal, window, or balcony for this floor's main prefab type
                 float prefabTypeRoll = (float)random.NextDouble();
-                if (prefabTypeRoll < 0.6f) // 60% chance of normal wall
-                {
-                    // Use normal wall
-                }
-                else if (prefabTypeRoll < 0.8f && chosenWindowPrefabType != null) // 20% chance of window (if available)
-                {
+                if (prefabTypeRoll < 0.6f) { /* Normal wall */ }
+                else if (prefabTypeRoll < 0.8f && chosenWindowPrefabType != null)
                     currentFloorWindowPrefab = chosenWindowPrefabType;
-                }
-                else if (chosenBalconyPrefabType != null) // Remaining chance of balcony (if available)
-                {
+                else if (chosenBalconyPrefabType != null)
                     currentFloorBalconyPrefab = chosenBalconyPrefabType;
-                }
             }
 
-
-            for (int l = 0; l < lengthSegments; l++) // Length segments along the path (Z)
+            for (int l = 0; l < lengthSegments; l++)
             {
-                for (int w = 0; w < widthSegments; w++) // Width segments perpendicular to the path (X)
+                for (int w = 0; w < widthSegments; w++)
                 {
-                    // Calculate the local position for the prefab
                     Vector3 localPosition = new Vector3(
                         w * prefabSize,
                         h * prefabHeight,
                         l * prefabSize
                     ) + centerOffset;
 
-                    // Determine if this is a corner, edge, or middle piece
                     bool isCorner = (l == 0 || l == lengthSegments - 1) && (w == 0 || w == widthSegments - 1);
                     bool isEdgeAlongLength = (w == 0 || w == widthSegments - 1) && !isCorner;
                     bool isEdgeAlongWidth = (l == 0 || l == lengthSegments - 1) && !isCorner;
                     bool isMiddle = !isCorner && !isEdgeAlongLength && !isEdgeAlongWidth;
 
-
-                    // --- Place Walls (Ground and Upper Floors) ---
-                    if (h < houseHeight - 1) // Not the roof level
+                    if (h < houseHeight - 1)
                     {
                         GameObject prefabToInstantiate = null;
                         Quaternion rotation = Quaternion.identity;
 
-                        // Handle corners based on house type and position
+                        // Handle first house special case for front edge
+                        if (houseType == HouseType.First && l == 0 && isEdgeAlongLength)
+                        {
+                            // Leave front edge open for possible door placement
+                            continue;
+                        }
+
                         if (isCorner)
                         {
-                            // Corners only appear on the first and last house (or single)
                             if (houseType == HouseType.Single || houseType == HouseType.First || houseType == HouseType.Last)
                             {
                                 prefabToInstantiate = chosenCornerWallPrefab;
-
-                                // Determine corner rotation based on position and path direction
-                                if (l == 0 && w == 0)
-                                    rotation = Quaternion.Euler(0, 270, 0); // Front-Left
-                                else if (l == 0 && w == widthSegments - 1)
-                                    rotation = Quaternion.Euler(0, 90, 0); // Front-Right (corrected)
-                                else if (l == lengthSegments - 1 && w == 0)
-                                    rotation = Quaternion.Euler(0, 0, 0); // Back-Left
-                                else if (l == lengthSegments - 1 && w == widthSegments - 1)
-                                    rotation = Quaternion.Euler(0, 0, 0); // Back-Right (corrected)
+                                if (l == 0 && w == 0) rotation = Quaternion.Euler(0, 270, 0);
+                                else if (l == 0 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 90, 0);
+                                else if (l == lengthSegments - 1 && w == 0) rotation = Quaternion.Euler(0, 0, 0);
+                                else if (l == lengthSegments - 1 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 0, 0);
                             }
                         }
-                        // Handle edges that meet neighbors (barrier in -z direction)
-                        else if ((houseType == HouseType.Middle || houseType == HouseType.Last) && l == 0 && isEdgeAlongLength) // Front edge of middle/last house
+                        else if ((houseType == HouseType.Middle || houseType == HouseType.Last) && l == 0 && isEdgeAlongLength)
                         {
-                            // This side meets the previous house, use edge walls
                             prefabToInstantiate = (widthSegments > 1 && w > 0 && w < widthSegments - 1) ? middleEdgeWallPrefab : cornerEdgeWallPrefab;
-                            rotation = Quaternion.Euler(0, 180, 0); // Rotate to face the correct direction (barrier in -z)
+                            rotation = Quaternion.Euler(0, 180, 0);
                         }
-                        else if ((houseType == HouseType.Middle || houseType == HouseType.First) && l == lengthSegments - 1 && isEdgeAlongLength) // Back edge of middle/first house
+                        else if ((houseType == HouseType.Middle || houseType == HouseType.First) && l == lengthSegments - 1 && isEdgeAlongLength)
                         {
-                            // This side meets the next house, use edge walls
                             prefabToInstantiate = (widthSegments > 1 && w > 0 && w < widthSegments - 1) ? middleEdgeWallPrefab : cornerEdgeWallPrefab;
-                            rotation = Quaternion.Euler(0, 0, 0); // Rotate to face the correct direction (barrier in -z)
+                            rotation = Quaternion.Euler(0, 0, 0);
                         }
-                        // Handle normal walls and other types
                         else
                         {
-                            // Normal walls, windows, balconies, decorations
-                            if (h == 0) // Ground floor
+                            if (h == 0)
                             {
-                                // Try to place a door
-                                if (doorsToPlace > 0 && (l == 0 || l == lengthSegments - 1) && (w == 0 || w == widthSegments - 1) == false) // Only on non-corner sides
+                                bool isEdge = (l == 0 || l == lengthSegments - 1 || w == 0 || w == widthSegments - 1);
+                                if (doorsToPlace > 0 && isEdge && !isCorner)
                                 {
-                                    // Random chance to place a door
-                                    if (random.NextDouble() < 0.2f) // 20% chance for a door on an available spot
+                                    if (random.NextDouble() < 0.3f) // Increased chance for first house
                                     {
                                         prefabToInstantiate = GetRandomPrefab(doorPrefabs);
-                                        doorsToPlace--; // Decrement the count of doors to place
-                                        groundFloorDoorPositions.Add(localPosition); // Record door position
+                                        doorsToPlace--;
+                                        groundFloorDoorPositions.Add(localPosition);
                                     }
                                 }
 
-                                // If no door was placed, choose another ground floor prefab
                                 if (prefabToInstantiate == null)
                                 {
                                     float groundFloorRoll = (float)random.NextDouble();
-                                    if (groundFloorRoll < 0.7f) // 70% chance of normal wall
-                                    {
-                                        prefabToInstantiate = normalWallPrefab;
-                                    }
-                                    else if (groundFloorRoll < 0.85f && chosenWindowPrefabType != null) // 15% chance of window
-                                    {
-                                        prefabToInstantiate = GetRandomPrefab(windowPrefabs); // Use chosen type, random variant
-                                    }
-                                    else if (groundFloorRoll < 0.95f && chosenBalconyPrefabType != null) // 10% chance of balcony
-                                    {
-                                        prefabToInstantiate = GetRandomPrefab(balconyWallPrefabs); // Use chosen type, random variant
-                                    }
-                                    else // 5% chance of decorated wall
-                                    {
-                                        prefabToInstantiate = decoratedWallPrefab;
-                                    }
+                                    if (groundFloorRoll < 0.7f) prefabToInstantiate = normalWallPrefab;
+                                    else if (groundFloorRoll < 0.85f) prefabToInstantiate = GetRandomPrefab(windowPrefabs);
+                                    else if (groundFloorRoll < 0.95f) prefabToInstantiate = GetRandomPrefab(balconyWallPrefabs);
+                                    else prefabToInstantiate = decoratedWallPrefab;
                                 }
                             }
-                            else // Upper floors
+                            else
                             {
-                                // Use the chosen type for this floor (window, balcony, or normal)
-                                if (currentFloorWindowPrefab != null)
-                                {
-                                    prefabToInstantiate = GetRandomPrefab(windowPrefabs); // Use chosen type, random variant
-                                }
-                                else if (currentFloorBalconyPrefab != null)
-                                {
-                                    prefabToInstantiate = GetRandomPrefab(balconyWallPrefabs); // Use chosen type, random variant
-                                }
-                                else
-                                {
-                                    // Randomly choose between normal and decorated for upper floors if no specific type is chosen
-                                    prefabToInstantiate = random.NextDouble() < 0.9f ? normalWallPrefab : decoratedWallPrefab; // 90% normal, 10% decorated
-                                }
+                                if (currentFloorWindowPrefab != null) prefabToInstantiate = GetRandomPrefab(windowPrefabs);
+                                else if (currentFloorBalconyPrefab != null) prefabToInstantiate = GetRandomPrefab(balconyWallPrefabs);
+                                else prefabToInstantiate = random.NextDouble() < 0.9f ? normalWallPrefab : decoratedWallPrefab;
                             }
-
-                            // Determine rotation for non-corner/edge walls (they point to -x)
-                            // User requested 0,0,0 for both sides.
-                            rotation = Quaternion.Euler(0, 0, 0); // Set rotation to (0,0,0)
-
+                            rotation = Quaternion.Euler(0, 0, 0);
                         }
 
-                        // Instantiate the wall prefab
                         if (prefabToInstantiate != null)
-                        {
                             InstantiatePrefab(prefabToInstantiate, localPosition, rotation);
-                        }
                     }
-                    // --- Place Roofs ---
-                    else // This is the roof level (h == houseHeight - 1)
+                    else
                     {
                         GameObject roofPrefabToInstantiate = null;
                         Quaternion rotation = Quaternion.identity;
 
-                        // Handle corner roofs
                         if (isCorner)
                         {
                             if (houseType == HouseType.Single || houseType == HouseType.First || houseType == HouseType.Last)
                             {
                                 roofPrefabToInstantiate = chosenCornerRoofPrefab;
-
-                                // Determine corner rotation based on position and path direction
-                                // Corner roof prefabs point to +z, -x (same as corner walls)
-                                // Applying the same adjusted rotation logic as corner walls
-                                if (l == 0 && w == 0)
-                                    rotation = Quaternion.Euler(0, 270, 0); // Front-Left
-                                else if (l == 0 && w == widthSegments - 1)
-                                    rotation = Quaternion.Euler(0, 90, 0); // Front-Right (corrected)
-                                else if (l == lengthSegments - 1 && w == 0)
-                                    rotation = Quaternion.Euler(0, 0, 0); // Back-Left
-                                else if (l == lengthSegments - 1 && w == widthSegments - 1)
-                                    rotation = Quaternion.Euler(0, 0, 0); // Back-Right (corrected)
+                                if (l == 0 && w == 0) rotation = Quaternion.Euler(0, 270, 0);
+                                else if (l == 0 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 90, 0);
+                                else if (l == lengthSegments - 1 && w == 0) rotation = Quaternion.Euler(0, 0, 0);
+                                else if (l == lengthSegments - 1 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 0, 0);
                             }
                         }
-                        // Handle edge roofs that meet neighbors (barrier in -z direction)
-                        else if ((houseType == HouseType.Middle || houseType == HouseType.Last) && l == 0 && isEdgeAlongLength) // Front edge of middle/last house
+                        else if ((houseType == HouseType.Middle || houseType == HouseType.Last) && l == 0 && isEdgeAlongLength)
                         {
-                            // This side meets the previous house, use edge roofs
                             roofPrefabToInstantiate = (widthSegments > 1 && w > 0 && w < widthSegments - 1) ? topRoofEdgePrefab : GetRandomPrefab(sideRoofEdgePrefabs);
-                            rotation = Quaternion.Euler(0, 180, 0); // Rotate to face the correct direction (barrier in -z)
+                            rotation = Quaternion.Euler(0, 180, 0);
                         }
-                        else if ((houseType == HouseType.Middle || houseType == HouseType.First) && l == lengthSegments - 1 && isEdgeAlongLength) // Back edge of middle/first house
+                        else if ((houseType == HouseType.Middle || houseType == HouseType.First) && l == lengthSegments - 1 && isEdgeAlongLength)
                         {
-                            // This side meets the next house, use edge roofs
                             roofPrefabToInstantiate = (widthSegments > 1 && w > 0 && w < widthSegments - 1) ? topRoofEdgePrefab : GetRandomPrefab(sideRoofEdgePrefabs);
-                            rotation = Quaternion.Euler(0, 0, 0); // Rotate to face the correct direction (barrier in -z)
+                            rotation = Quaternion.Euler(0, 0, 0);
                         }
-                        // Handle normal side roofs and top roofs
                         else
                         {
-                            // Side roofs along the length (Z)
                             if (isEdgeAlongLength)
                             {
                                 roofPrefabToInstantiate = GetRandomPrefab(sideRoofPrefabs);
-                                // Determine rotation for side roofs (they point to -x)
-                                // User requested 0,0,0 for both sides.
-                                rotation = Quaternion.Euler(0, 0, 0); // Set rotation to (0,0,0)
+                                rotation = Quaternion.Euler(0, 0, 0);
                             }
-                            // Top roofs for width > 2 along the width (X)
                             else if (widthSegments > 1 && isEdgeAlongWidth)
                             {
                                 roofPrefabToInstantiate = topRoofPrefab;
-                                // Determine rotation for top roofs (they point to -x, but need to be rotated 90 around Y to cover width)
-                                if (l == 0) rotation = Quaternion.Euler(0, 180, 0); // Front side
-                                else if (l == lengthSegments - 1) rotation = Quaternion.Euler(0, 0, 0); // Back side
+                                if (l == 0) rotation = Quaternion.Euler(0, 180, 0);
+                                else if (l == lengthSegments - 1) rotation = Quaternion.Euler(0, 0, 0);
                             }
-                            // Special 2-unit wide roof component
                             else if (isMiddle && specialTwoUnitRoofPrefab != null)
                             {
-                                // This prefab is 2 units wide, so it occupies two width segments.
-                                // Only place it for the first of the two segments it covers.
                                 if (widthSegments > 1 && w % 2 == 0)
                                 {
                                     roofPrefabToInstantiate = specialTwoUnitRoofPrefab;
-                                    // Rotation depends on which side of the house it's on (front/back)
-                                    if (l == 0) rotation = Quaternion.Euler(0, 180, 0); // Front side
-                                    else if (l == lengthSegments - 1) rotation = Quaternion.Euler(0, 0, 0); // Back side
+                                    if (l == 0) rotation = Quaternion.Euler(0, 180, 0);
+                                    else if (l == lengthSegments - 1) rotation = Quaternion.Euler(0, 0, 0);
                                 }
                             }
                         }
 
-                        // Instantiate the roof prefab
                         if (roofPrefabToInstantiate != null)
-                        {
                             InstantiatePrefab(roofPrefabToInstantiate, localPosition, rotation);
-                        }
                     }
                 }
             }
         }
 
-        // Ensure at least one door was placed on the ground floor. If not, force one.
         if (doorsToPlace > 0 && houseHeight > 0)
         {
-            // Find a valid position on the ground floor that isn't a corner
             List<Vector3> potentialDoorPositions = new List<Vector3>();
             int lengthSegs = Mathf.RoundToInt(houseLength / 2f);
             int widthSegs = Mathf.RoundToInt(houseWidth / 2f);
             Vector3 offset = new Vector3(
-               -(widthSegs * prefabSize) / 2f + prefabSize / 2f,
-               0, // Ground floor
-               -(lengthSegs * prefabSize) / 2f + prefabSize / 2f
-           );
+                -(widthSegs * prefabSize) / 2f + prefabSize / 2f,
+                0,
+                -(lengthSegs * prefabSize) / 2f + prefabSize / 2f
+            );
 
+            // Special handling for first house front edge
+            if (houseType == HouseType.First)
+            {
+                for (int w = 1; w < widthSegs - 1; w++) // Skip corners
+                {
+                    Vector3 pos = new Vector3(w * prefabSize, 0, 0) + offset;
+                    potentialDoorPositions.Add(pos);
+                }
+            }
+
+            // General edge collection
             for (int l = 0; l < lengthSegs; l++)
             {
                 for (int w = 0; w < widthSegs; w++)
                 {
+                    bool isEdge = (l == 0 || l == lengthSegs - 1 || w == 0 || w == widthSegs - 1);
                     bool isCorner = (l == 0 || l == lengthSegs - 1) && (w == 0 || w == widthSegs - 1);
-                    if (!isCorner)
+                    if (isEdge && !isCorner)
                     {
                         Vector3 pos = new Vector3(w * prefabSize, 0, l * prefabSize) + offset;
-                        // Check if a prefab already exists at this position (might be an edge wall)
-                        // This is a simplified check; a more robust method would involve checking for existing colliders or tags.
-                        bool positionOccupied = false;
-                        foreach (Transform child in transform)
+                        potentialDoorPositions.Add(pos);
+                    }
+                }
+            }
+
+            // Remove occupied positions
+            List<Vector3> availablePositions = new List<Vector3>();
+            foreach (Vector3 pos in potentialDoorPositions)
+            {
+                bool occupied = false;
+                foreach (Transform child in transform)
+                {
+                    if (Vector3.Distance(child.localPosition, pos) < 0.1f)
+                    {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if (!occupied) availablePositions.Add(pos);
+            }
+
+            // Fallback to replacing walls if needed
+            if (availablePositions.Count == 0)
+            {
+                foreach (Vector3 pos in potentialDoorPositions)
+                {
+                    // Find and destroy existing wall at this position
+                    foreach (Transform child in transform)
+                    {
+                        if (Vector3.Distance(child.localPosition, pos) < 0.1f)
                         {
-                            if (Vector3.Distance(child.localPosition, pos) < 0.1f)
-                            {
-                                positionOccupied = true;
-                                break;
-                            }
-                        }
-                        if (!positionOccupied)
-                        {
-                            potentialDoorPositions.Add(pos);
+                            DestroyImmediate(child.gameObject);
+                            availablePositions.Add(pos);
+                            break;
                         }
                     }
                 }
             }
 
-            if (potentialDoorPositions.Count > 0)
+            if (availablePositions.Count > 0)
             {
-                Vector3 doorPosition = potentialDoorPositions[random.Next(potentialDoorPositions.Count)];
-                // Determine rotation for the forced door
+                Vector3 doorPosition = availablePositions[random.Next(availablePositions.Count)];
                 Quaternion rotation = Quaternion.identity;
-                // Assuming door is placed on a non-corner side
-                // Need to figure out which side based on position relative to centerOffset
-                float epsilon = 0.1f;
-                // Apply the same rotation logic as the side walls (0,0,0)
-                rotation = Quaternion.Euler(0, 0, 0);
+
+                bool isFrontBackEdge = (Mathf.Abs(doorPosition.z - offset.z) < 0.1f) ||
+                                    (Mathf.Abs(doorPosition.z - (offset.z + (lengthSegs - 1) * prefabSize)) < 0.1f);
+                bool isLeftRightEdge = (Mathf.Abs(doorPosition.x - offset.x) < 0.1f) ||
+                                    (Mathf.Abs(doorPosition.x - (offset.x + (widthSegs - 1) * prefabSize)) < 0.1f);
+
+                if (isFrontBackEdge) rotation = Quaternion.Euler(0, 0, 0);
+                else if (isLeftRightEdge) rotation = Quaternion.Euler(0, 90, 0);
 
                 InstantiatePrefab(GetRandomPrefab(doorPrefabs), doorPosition, rotation);
-                Debug.LogWarning($"Forced a door on House {gameObject.name} at position {doorPosition}.");
+                Debug.LogWarning($"Forced door on {gameObject.name} at {doorPosition}");
             }
             else
             {
-                Debug.LogError($"Could not find a valid position to place a door on House {gameObject.name}.");
+                Debug.LogError($"Failed to place door on {gameObject.name}");
             }
         }
 
-
-        Debug.Log($"Generated House: {gameObject.name}, Type: {houseType}, Length: {houseLength}, Width: {houseWidth}, Height: {houseHeight}");
+        Debug.Log($"Generated House: {gameObject.name}, Type: {houseType}, Dimensions: {houseLength}x{houseWidth}x{houseHeight}");
     }
-
     /// <summary>
     /// Wipes the mesh objects for this individual house.
     /// </summary>
