@@ -715,7 +715,7 @@ Transform:
   m_GameObject: {fileID: 1806219492}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.223956, y: -3.36, z: -6.2726135}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -734,61 +734,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathStart: {x: 0, y: 0, z: 0}
-  pathEnd: {x: 28.284481, y: 0, z: 30}
+  pathEnd: {x: 0, y: 0, z: 50}
   numberOfHouses: 3
   minimumHouseLength: 6
-  houseWidth: 2
+  houseWidth: 4
   minHouseHeight: 3
-  maxHouseHeight: 5
+  maxHouseHeight: 4
   seed: 0
-  normalWallPrefab: {fileID: 919132149155446097, guid: a4a84c65dc4301647b35ea67130044a5, type: 3}
-  decoratedWallPrefab: {fileID: 919132149155446097, guid: 4dceb5c2946494c46b54087de8f501ea, type: 3}
+  normalWallPrefab: {fileID: 919132149155446097, guid: 41e30ae09fe1c4a4b926c8b338228918, type: 3}
+  decoratedWallPrefab: {fileID: 919132149155446097, guid: d6a343ca9ff5d624899902fd4fcf06ea, type: 3}
   balconyWallPrefabs:
-  - {fileID: 919132149155446097, guid: df60d7b0c397f7749bd4f7fa9b6aaa0f, type: 3}
-  - {fileID: 919132149155446097, guid: 66e3fb3a470195041b9a5176c04d527d, type: 3}
-  - {fileID: 919132149155446097, guid: b8d0bfdc9f69f714cb01809d644e50a4, type: 3}
-  - {fileID: 919132149155446097, guid: b19e20374ee32594f8b7819a4a39d101, type: 3}
+  - {fileID: 919132149155446097, guid: 8e97afb66769ead49a0d307cd2b3578b, type: 3}
+  - {fileID: 919132149155446097, guid: 2e34bdf08845fac4a90db6c66dc3cf4e, type: 3}
+  - {fileID: 919132149155446097, guid: 4047e8281305a8741843e5983b17b2f3, type: 3}
+  - {fileID: 919132149155446097, guid: 508fe827315f42743b578c254fdfba0c, type: 3}
   doorPrefabs:
-  - {fileID: 919132149155446097, guid: 40133c2b63413af4682e19d48ff4dc26, type: 3}
-  - {fileID: 919132149155446097, guid: 91f5089e711ed3a489722d204de0e372, type: 3}
+  - {fileID: 919132149155446097, guid: f0ef80b4fb2346e438c0db94a332afd1, type: 3}
+  - {fileID: 919132149155446097, guid: 41dfbdc2bc92fbb46b8587c21b2a3a8b, type: 3}
   windowPrefabs:
-  - {fileID: 919132149155446097, guid: 9319746cfa2569448910af19232aa3de, type: 3}
-  - {fileID: 919132149155446097, guid: f2e586a16f71d1f4bb465d0908fe00c5, type: 3}
-  - {fileID: 919132149155446097, guid: ad00529a2921d5d4ca5321d45e6d01d8, type: 3}
-  - {fileID: 919132149155446097, guid: 45d562ea4fd90e74da14f4dd24fde8fc, type: 3}
-  - {fileID: 919132149155446097, guid: d350b5249297b2744ac03ce7bdf96299, type: 3}
-  - {fileID: 919132149155446097, guid: 208c4c16604a16b4c938c2d305e34a6f, type: 3}
-  - {fileID: 919132149155446097, guid: 1ad5e6ac61150e347a8f242175433796, type: 3}
-  - {fileID: 919132149155446097, guid: d7355722a306ba14fbfa4a421ee5a453, type: 3}
-  - {fileID: 919132149155446097, guid: 94ff1b203404a774fb82f6c674bd3062, type: 3}
-  - {fileID: 919132149155446097, guid: 0100f8247eb65ba40bb32a52813d9ffa, type: 3}
-  - {fileID: 919132149155446097, guid: 1ef4538519acc7d40910dc938990f77c, type: 3}
-  - {fileID: 919132149155446097, guid: b8951fbb99e2c474e8b4de90d4228f54, type: 3}
-  - {fileID: 919132149155446097, guid: 15e6201a981d2fd418f923d492c9428b, type: 3}
+  - {fileID: 919132149155446097, guid: 6853b8241dd59314f9cfbd727920047e, type: 3}
+  - {fileID: 919132149155446097, guid: d7e5b6910f6bca14ebcf1ce2b97106c8, type: 3}
+  - {fileID: 919132149155446097, guid: 83e15d27d84726e448012a9155c9d4dc, type: 3}
+  - {fileID: 919132149155446097, guid: 55b975b3b9d9ee949b1635699d4e57ae, type: 3}
+  - {fileID: 919132149155446097, guid: 59c4a66457d3f024bb36be60b8708bb7, type: 3}
+  - {fileID: 919132149155446097, guid: c9cf0c53b76f8ee4484cb9f59c421972, type: 3}
+  - {fileID: 919132149155446097, guid: 6458c0ad68354fb479b1c8582dc15fdc, type: 3}
+  - {fileID: 919132149155446097, guid: d14ec33d4e027034eb8e6a08433910ec, type: 3}
+  - {fileID: 919132149155446097, guid: f196c3bfdd24f2a47a6b8c273dfab717, type: 3}
+  - {fileID: 919132149155446097, guid: 1f07298604d096247809c48b0d69e4d9, type: 3}
+  - {fileID: 919132149155446097, guid: b686667bfe2fdeb489b94d19f75594a8, type: 3}
+  - {fileID: 919132149155446097, guid: 238e1a3e03b23e14697aa6225d6180f1, type: 3}
+  - {fileID: 919132149155446097, guid: fea3ddd9b84b09846bcd5fd22de7c3e3, type: 3}
   roundedCornerWallPrefabs:
-  - {fileID: 919132149155446097, guid: 303d438f49453a94b937caf08ed31935, type: 3}
-  - {fileID: 919132149155446097, guid: 1d5a98100df7f5e40a52d996963526f7, type: 3}
+  - {fileID: 919132149155446097, guid: f9265665764afdd49be7495327b1a18d, type: 3}
+  - {fileID: 919132149155446097, guid: dfe9b2b6c4262164f8b35ac2878a5436, type: 3}
   straightCornerWallPrefabs:
-  - {fileID: 919132149155446097, guid: 4588b5144d5bb604da006f6f08c3d6ff, type: 3}
-  - {fileID: 919132149155446097, guid: f7807a71ccd09a145a7b836736aa21ef, type: 3}
+  - {fileID: 919132149155446097, guid: a78acf96bbf10b246a65b0bec1ae241f, type: 3}
+  - {fileID: 919132149155446097, guid: 94d0340c170db40488f8f60dddbac038, type: 3}
   sideRoofPrefabs:
-  - {fileID: 919132149155446097, guid: 321c465a375d29249b108abef7b441e7, type: 3}
-  - {fileID: 919132149155446097, guid: ce1a0b094799db74fbdfa85dc36418f8, type: 3}
-  - {fileID: 919132149155446097, guid: ece6d032ec1f0ae40b33e12ccd246a4f, type: 3}
-  roundedCornerRoofPrefab: {fileID: 919132149155446097, guid: f1b63eff685585747898dcd998f571ad, type: 3}
-  straightCornerRoofPrefab: {fileID: 919132149155446097, guid: 454c8473e6ae511448a4dd5439acfa4b, type: 3}
-  topRoofPrefab: {fileID: 919132149155446097, guid: a0ed51d1fb70f2d4db712515addd2148, type: 3}
-  specialTwoUnitRoofPrefab: {fileID: 919132149155446097, guid: 1a00a0dbaf76df94bb2030e05f28259c, type: 3}
+  - {fileID: 919132149155446097, guid: ccbdd3717a9961a4baaea610954ffdb2, type: 3}
+  - {fileID: 919132149155446097, guid: bce2af4fcd0073349a7a633c3a93cd5a, type: 3}
+  - {fileID: 919132149155446097, guid: 93df08f1c72427b4ca2583b68cfa0fc4, type: 3}
+  roundedCornerRoofPrefab: {fileID: 919132149155446097, guid: 42779dffc5ead17449348f408f65ef50, type: 3}
+  straightCornerRoofPrefab: {fileID: 919132149155446097, guid: 39f06c0811819ec43bbb1732fd9ac0aa, type: 3}
+  topRoofPrefab: {fileID: 919132149155446097, guid: f96fd264bb884ea40aa2b62e945fc9fb, type: 3}
+  specialTwoUnitRoofPrefab: {fileID: 919132149155446097, guid: 09145d804a363e344875cfac39a90f93, type: 3}
   sideRoofEdgePrefabs:
-  - {fileID: 919132149155446097, guid: c34cd9d66bb625e4280b594256fd8d90, type: 3}
-  - {fileID: 919132149155446097, guid: 8a1b5605b6df0a94f83cc1750a5701fa, type: 3}
-  - {fileID: 919132149155446097, guid: 3dd6f99bc33f47c4c8043bf3aa5a59be, type: 3}
-  - {fileID: 919132149155446097, guid: 075e1534d5a88354ea66fcc520951571, type: 3}
-  - {fileID: 919132149155446097, guid: 02813b854eace854fb60506ca34b65fe, type: 3}
-  - {fileID: 919132149155446097, guid: b4422391653b0c24dba5f753797f23d8, type: 3}
-  cornerEdgeWallPrefab: {fileID: 919132149155446097, guid: d51d801f577a25c4fba48dc042355431, type: 3}
-  middleEdgeWallPrefab: {fileID: 919132149155446097, guid: 87b59af183743764da228094d7b03e3f, type: 3}
-  topRoofEdgePrefab: {fileID: 919132149155446097, guid: 19d0dc2688c37274786993fe31fb0996, type: 3}
+  - {fileID: 919132149155446097, guid: 2270320b79130a147b80686b6a5594cb, type: 3}
+  - {fileID: 919132149155446097, guid: 6f252d7ba5a8a89429c4ca50aff5c9b4, type: 3}
+  - {fileID: 919132149155446097, guid: e01f68f83c2d6e644937b59b9d6d9fc9, type: 3}
+  - {fileID: 919132149155446097, guid: d8b396e0366abca44ae785feeda9b1a2, type: 3}
+  - {fileID: 919132149155446097, guid: 5cc9c95a9f8048842aa4f0e3d1a3253b, type: 3}
+  - {fileID: 919132149155446097, guid: e8cf0cdf7fb782e4590467412d66263f, type: 3}
+  cornerEdgeWallPrefab: {fileID: 919132149155446097, guid: ec239f8f7ff087c4580a38331663282d, type: 3}
+  middleEdgeWallPrefab: {fileID: 919132149155446097, guid: eb2c828f4910b4f45908e4e43e88b36a, type: 3}
+  topRoofEdgePrefab: {fileID: 919132149155446097, guid: 40b0fc0cec6990a479cf608e0fed1d2f, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
