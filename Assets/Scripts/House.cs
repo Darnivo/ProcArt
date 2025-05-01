@@ -148,10 +148,14 @@ public class House : MonoBehaviour
 
                                 // Determine corner rotation based on position and path direction
                                 // Corner prefabs point to +z, -x
+                                // User requested: 0, 90, 0 or 0, -270, 0 (same) for one side
+                                // and 0, -270, 0 for the other (flipped) side.
+                                // Let's use 0, 90, 0 and 0, -90, 0 for the non-mirrored side
+                                // and adjust for the mirrored side in InstantiatePrefab.
                                 if (l == 0 && w == 0) rotation = Quaternion.Euler(0, 90, 0); // Front-Left
-                                else if (l == 0 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 180, 0); // Front-Right
+                                else if (l == 0 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 180, 0); // Front-Right (will be mirrored)
                                 else if (l == lengthSegments - 1 && w == 0) rotation = Quaternion.Euler(0, 0, 0); // Back-Left
-                                else if (l == lengthSegments - 1 && w == widthSegments - 1) rotation = Quaternion.Euler(0, -90, 0); // Back-Right
+                                else if (l == lengthSegments - 1 && w == widthSegments - 1) rotation = Quaternion.Euler(0, -90, 0); // Back-Right (will be mirrored)
                             }
                         }
                         // Handle edges that meet neighbors (barrier in -z direction)
@@ -162,7 +166,7 @@ public class House : MonoBehaviour
                              rotation = Quaternion.Euler(0, 180, 0); // Rotate to face the correct direction (barrier in -z)
                         }
                          else if ((houseType == HouseType.Middle || houseType == HouseType.First) && l == lengthSegments - 1 && isEdgeAlongLength) // Back edge of middle/first house
-                        {
+                         {
                              // This side meets the next house, use edge walls
                             prefabToInstantiate = (widthSegments > 1 && w > 0 && w < widthSegments - 1) ? middleEdgeWallPrefab : cornerEdgeWallPrefab;
                             rotation = Quaternion.Euler(0, 0, 0); // Rotate to face the correct direction (barrier in -z)
@@ -226,10 +230,8 @@ public class House : MonoBehaviour
                             }
 
                             // Determine rotation for non-corner/edge walls (they point to -x)
-                             if (w == 0) rotation = Quaternion.Euler(0, 90, 0); // Left side
-                             else if (w == widthSegments - 1) rotation = Quaternion.Euler(0, -90, 0); // Right side
-                             else if (l == 0) rotation = Quaternion.Euler(0, 180, 0); // Front side
-                             else if (l == lengthSegments - 1) rotation = Quaternion.Euler(0, 0, 0); // Back side
+                            // User requested 0,0,0 for both sides.
+                            rotation = Quaternion.Euler(0, 0, 0); // Set rotation to (0,0,0)
 
                         }
 
@@ -254,10 +256,11 @@ public class House : MonoBehaviour
 
                                  // Determine corner rotation based on position and path direction
                                  // Corner roof prefabs point to +z, -x (same as corner walls)
+                                 // Applying the same rotation logic as corner walls
                                  if (l == 0 && w == 0) rotation = Quaternion.Euler(0, 90, 0); // Front-Left
-                                 else if (l == 0 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 180, 0); // Front-Right
+                                 else if (l == 0 && w == widthSegments - 1) rotation = Quaternion.Euler(0, 180, 0); // Front-Right (will be mirrored)
                                  else if (l == lengthSegments - 1 && w == 0) rotation = Quaternion.Euler(0, 0, 0); // Back-Left
-                                 else if (l == lengthSegments - 1 && w == widthSegments - 1) rotation = Quaternion.Euler(0, -90, 0); // Back-Right
+                                 else if (l == lengthSegments - 1 && w == widthSegments - 1) rotation = Quaternion.Euler(0, -90, 0); // Back-Right (will be mirrored)
                              }
                          }
                          // Handle edge roofs that meet neighbors (barrier in -z direction)
@@ -281,8 +284,8 @@ public class House : MonoBehaviour
                              {
                                  roofPrefabToInstantiate = GetRandomPrefab(sideRoofPrefabs);
                                  // Determine rotation for side roofs (they point to -x)
-                                 if (w == 0) rotation = Quaternion.Euler(0, 90, 0); // Left side
-                                 else if (w == widthSegments - 1) rotation = Quaternion.Euler(0, -90, 0); // Right side
+                                 // User requested 0,0,0 for both sides.
+                                 rotation = Quaternion.Euler(0, 0, 0); // Set rotation to (0,0,0)
                              }
                              // Top roofs for width > 2 along the width (X)
                              else if (widthSegments > 1 && isEdgeAlongWidth)
@@ -365,10 +368,8 @@ public class House : MonoBehaviour
                  // Assuming door is placed on a non-corner side
                  // Need to figure out which side based on position relative to centerOffset
                  float epsilon = 0.1f;
-                 if (Mathf.Abs(doorPosition.x - offset.x) < epsilon) rotation = Quaternion.Euler(0, 90, 0); // Left side
-                 else if (Mathf.Abs(doorPosition.x - (offset.x + (widthSegs - 1) * prefabSize)) < epsilon) rotation = Quaternion.Euler(0, -90, 0); // Right side
-                 else if (Mathf.Abs(doorPosition.z - offset.z) < epsilon) rotation = Quaternion.Euler(0, 180, 0); // Front side
-                 else if (Mathf.Abs(doorPosition.z - (offset.z + (lengthSegs - 1) * prefabSize)) < epsilon) rotation = Quaternion.Euler(0, 0, 0); // Back side
+                 // Apply the same rotation logic as the side walls (0,0,0)
+                 rotation = Quaternion.Euler(0, 0, 0);
 
                 InstantiatePrefab(GetRandomPrefab(doorPrefabs), doorPosition, rotation);
                  Debug.LogWarning($"Forced a door on House {gameObject.name} at position {doorPosition}.");
@@ -451,18 +452,12 @@ public class House : MonoBehaviour
          if (houseWidth == 4 && wIndex == 1)
          {
               // Mirror the prefab by scaling the local X axis by -1
-            //   instance.transform.localScale = new Vector3(-1, 1, 1);
+              instance.transform.localScale = new Vector3(-1, 1, 1);
          }
-          else if (houseWidth == 2 && wIndex == 0)
+          else // For width 2 or other cases, use the default scale
           {
-              // No mirroring needed for a width 2 house
-            //    instance.transform.localScale = new Vector3(1, 1, 1);
+              instance.transform.localScale = new Vector3(1, 1, 1);
           }
-           else
-           {
-               // Default scale for other cases (like corners that might not fit the simple mirroring logic)
-            //    instance.transform.localScale = new Vector3(1, 1, 1);
-           }
     }
 
 
