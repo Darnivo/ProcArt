@@ -52,10 +52,14 @@ public class RoadEditor : Editor
             // Draw sphere handle
             Handles.color = Color.yellow;
             float handleSize = HandleUtility.GetHandleSize(point) * 0.15f;
-            // if (Handles.Button(point, handleRotation, handleSize, handleSize, Handles.SphereHandleCap))
-            // {
-            //     // point deletion logic here
-            // }
+            
+            //deletion logic:
+            if (Handles.Button(point, handleRotation, handleSize, handleSize, Handles.SphereHandleCap)) {
+                Undo.RecordObject(road, "Delete Road Point");
+                road.points.RemoveAt(i);
+                road.GenerateRoadMesh();
+                Event.current.Use();
+            }
         }
     }
 }

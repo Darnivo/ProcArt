@@ -77,37 +77,34 @@ public class Road : MonoBehaviour
         meshFilter.mesh = mesh;
     }
 
-    private List<Vector3> SubdividePointsForSharpTurns(List<Vector3> points)
+    private List<Vector3> SubdividePointsForSharpTurns(List<Vector3> points) 
     {
-        List<Vector3> subdividedPoints = new List<Vector3> { points[0] };
+        List<Vector3> subdivided = new List<Vector3>();
+        for (int i = 0; i < points.Count - 1; i++) {
+            Vector3 p0 = i > 0 ? points[i-1] : points[i];
+            Vector3 p1 = points[i];
+            Vector3 p2 = points[i+1];
+            Vector3 p3 = (i+2 < points.Count) ? points[i+2] : p2;
 
-        for (int i = 1; i < points.Count - 1; i++)
-        {
-            Vector3 prevDir = (points[i] - points[i - 1]).normalized;
-            Vector3 nextDir = (points[i + 1] - points[i]).normalized;
-            float angle = Vector3.Angle(prevDir, nextDir);
-
-            if (angle > curveThreshold)
-            {
-                // Subdivide the segment
-                int subdivisions = Mathf.CeilToInt(angle / curveThreshold);
-                for (int j = 1; j <= subdivisions; j++)
-                {
-                    float t = j / (float)(subdivisions + 1);
-                    Vector3 newPoint = Vector3.Lerp(points[i], points[i + 1], t);
-                    subdividedPoints.Add(newPoint);
-                }
-            }
-            else
-            {
-                subdividedPoints.Add(points[i]);
+            // Add intermediate points using Catmull-Rom
+            int segments = Mathf.CeilToInt(Vector3.Angle(p1 - p0, p2 - p1) / curveThreshold);
+            for (int s = 0; s < segments; s++) {
+                float t = s / (float)segments;
+                subdivided.Add(GetCatmullRomPosition(t, p0, p1, p2, p3));
             }
         }
-
-        subdividedPoints.Add(points[points.Count - 1]);
-        return subdividedPoints;
+        subdivided.Add(points[points.Count-1]);
+        return subdivided;
     }
 
+    private Vector3 GetCatmullRomPosition(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) 
+    {
+        float t2 = t * t;
+        float t3 = t2 * t;
+        return 0.5f * ((2 * p1) + (-p0 + p2) * t + 
+            (2*p0 - 5*p1 + 4*p2 - p3) * t2 + 
+            (-p0 + 3*p1 - 3*p2 + p3) * t3);
+    }
     public List<LineSegment> GetSegments()
     {
         List<LineSegment> segments = new List<LineSegment>();
