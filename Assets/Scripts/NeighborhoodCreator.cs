@@ -12,6 +12,14 @@ public enum HouseType
     Last    // The last house in a sequence
 }
 
+public enum VariantSelectionMode
+{
+    UseAll,
+    RandomizePerHouse,
+    SelectOneVariant
+}
+
+
 public class NeighborhoodCreator : MonoBehaviour
 {
 
@@ -20,6 +28,8 @@ public class NeighborhoodCreator : MonoBehaviour
     public Vector3 pathStart = Vector3.zero;
     [Tooltip("The ending point of the neighborhood path.")]
     public Vector3 pathEnd = new Vector3(0, 0, 10); // Default path length
+
+    
 
     [Header("Generation Settings")]
     [Tooltip("The number of houses to generate along the path.")]
@@ -48,8 +58,16 @@ public class NeighborhoodCreator : MonoBehaviour
     public GameObject normalWallPrefab;
     public GameObject decoratedWallPrefab;
     public GameObject[] balconyWallPrefabs; // Different types of balconies
+
+    [Header("Variant Selection")]
+    [Tooltip("Selection mode for balcony wall prefabs variants.")]
+    public VariantSelectionMode balconySelection = VariantSelectionMode.UseAll;
+
     public GameObject[] doorPrefabs; // Different variants of doors
     public GameObject[] windowPrefabs; // Different types/variants of windows
+
+    [Tooltip("Selection mode for window prefabs variants.")]
+    public VariantSelectionMode windowSelection = VariantSelectionMode.UseAll;
 
     public GameObject[] roundedCornerWallPrefabs; // Variants of rounded corners
     public GameObject[] straightCornerWallPrefabs; // Variants of straight corners
@@ -160,6 +178,25 @@ public class NeighborhoodCreator : MonoBehaviour
         Vector3 pathDirection = (pathEnd - pathStart).normalized;
         Quaternion pathRotation = Quaternion.LookRotation(pathDirection);
 
+        // Pre-select groups for SelectOneVariant mode
+        Dictionary<string, List<GameObject>> balconyGroupsSelectOne = null;
+        string selectedBalconyGroupKeySelectOne = null;
+        if (balconySelection == VariantSelectionMode.SelectOneVariant)
+        {
+            balconyGroupsSelectOne = GroupPrefabsByPrefix(balconyWallPrefabs);
+            Random.InitState(seed);
+            selectedBalconyGroupKeySelectOne = SelectRandomGroupKey(balconyGroupsSelectOne);
+        }
+
+        Dictionary<string, List<GameObject>> windowGroupsSelectOne = null;
+        string selectedWindowGroupKeySelectOne = null;
+        if (windowSelection == VariantSelectionMode.SelectOneVariant)
+        {
+            windowGroupsSelectOne = GroupPrefabsByPrefix(windowPrefabs);
+            Random.InitState(seed);
+            selectedWindowGroupKeySelectOne = SelectRandomGroupKey(windowGroupsSelectOne);
+        }
+
         for (int i = 0; i < numberOfHouses; i++)
         {
             // Determine house type
@@ -210,9 +247,9 @@ public class NeighborhoodCreator : MonoBehaviour
             // Assign prefab references to the House script
             house.normalWallPrefab = normalWallPrefab;
             house.decoratedWallPrefab = decoratedWallPrefab;
-            house.balconyWallPrefabs = balconyWallPrefabs;
+            // house.balconyWallPrefabs = balconyWallPrefabs;
             house.doorPrefabs = doorPrefabs;
-            house.windowPrefabs = windowPrefabs;
+            // house.windowPrefabs = windowPrefabs;
             house.roundedCornerWallPrefabs = roundedCornerWallPrefabs;
             house.straightCornerWallPrefabs = straightCornerWallPrefabs;
             house.sideRoofPrefabs = sideRoofPrefabs;
@@ -224,6 +261,55 @@ public class NeighborhoodCreator : MonoBehaviour
             house.cornerEdgeWallPrefab = cornerEdgeWallPrefab;
             house.middleEdgeWallPrefab = middleEdgeWallPrefab;
             house.topRoofEdgePrefab = topRoofEdgePrefab;
+
+            // Process balconyWallPrefabs based on selection mode
+            if (balconySelection == VariantSelectionMode.SelectOneVariant)
+            {
+                if (balconyGroupsSelectOne != null && selectedBalconyGroupKeySelectOne != null && balconyGroupsSelectOne.ContainsKey(selectedBalconyGroupKeySelectOne))
+                    house.balconyWallPrefabs = balconyGroupsSelectOne[selectedBalconyGroupKeySelectOne].ToArray();
+                else
+                    house.balconyWallPrefabs = new GameObject[0];
+            }
+            else if (balconySelection == VariantSelectionMode.RandomizePerHouse)
+            {
+                var groups = GroupPrefabsByPrefix(balconyWallPrefabs);
+                if (groups.Count > 0)
+                {
+                    Random.InitState(house.seed);
+                    string key = SelectRandomGroupKey(groups);
+                    house.balconyWallPrefabs = groups[key].ToArray();
+                }
+                else
+                    house.balconyWallPrefabs = new GameObject[0];
+            }
+            else
+                house.balconyWallPrefabs = balconyWallPrefabs;
+
+            // Process windowPrefabs based on selection mode
+            if (windowSelection == VariantSelectionMode.SelectOneVariant)
+            {
+                if (windowGroupsSelectOne != null && selectedWindowGroupKeySelectOne != null && windowGroupsSelectOne.ContainsKey(selectedWindowGroupKeySelectOne))
+                    house.windowPrefabs = windowGroupsSelectOne[selectedWindowGroupKeySelectOne].ToArray();
+                else
+                    house.windowPrefabs = new GameObject[0];
+            }
+            else if (windowSelection == VariantSelectionMode.RandomizePerHouse)
+            {
+                var groups = GroupPrefabsByPrefix(windowPrefabs);
+                if (groups.Count > 0)
+                {
+                    Random.InitState(house.seed);
+                    string key = SelectRandomGroupKey(groups);
+                    house.windowPrefabs = groups[key].ToArray();
+                }
+                else
+                    house.windowPrefabs = new GameObject[0];
+            }
+            else
+            {   
+                house.windowPrefabs = windowPrefabs;
+            }
+             
 
 
             // Generate the individual house mesh
@@ -293,5 +379,36 @@ public class NeighborhoodCreator : MonoBehaviour
     public Quaternion GetPathRotation()
     {
         return Quaternion.LookRotation(GetPathDirection());
+    }
+
+    private Dictionary<string, List<GameObject>> GroupPrefabsByPrefix(GameObject[] prefabs)
+    {
+        Dictionary<string, List<GameObject>> groups = new Dictionary<string, List<GameObject>>();
+        foreach (GameObject prefab in prefabs)
+        {
+            if (prefab == null)
+                continue;
+
+            string[] nameParts = prefab.name.Split('_');
+            if (nameParts.Length == 0)
+                continue;
+
+            string prefix = nameParts[0];
+            if (!groups.ContainsKey(prefix))
+                groups[prefix] = new List<GameObject>();
+
+            groups[prefix].Add(prefab);
+        }
+        return groups;
+    }
+
+    private string SelectRandomGroupKey(Dictionary<string, List<GameObject>> groups)
+    {
+        if (groups == null || groups.Count == 0)
+            return null;
+
+        List<string> keys = new List<string>(groups.Keys);
+        int index = Random.Range(0, keys.Count);
+        return keys[index];
     }
 }
