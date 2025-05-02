@@ -32,6 +32,12 @@ public class RoadNetwork : MonoBehaviour
 
     void CreateIntersection(Vector3 position)
     {
+        float mergeThreshold = 0.5f;
+        foreach (Transform child in transform)
+        {
+            if (Vector3.Distance(child.position, position) < mergeThreshold)
+                return;
+        }
         GameObject intersectionGO = Instantiate(intersectionPrefab, position, Quaternion.identity, transform);
         Intersection intersection = intersectionGO.GetComponent<Intersection>();
         Undo.RegisterCreatedObjectUndo(intersectionGO, "Create Intersection");

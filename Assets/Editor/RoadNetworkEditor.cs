@@ -8,6 +8,9 @@ public class RoadNetworkEditor : Editor
     private Road currentRoad;
     private bool isCreatingRoad;
 
+    public float majorRoadWidth = 1.5f;
+    public float districtRoadWidth = 0.8f;
+
     void OnSceneGUI()
     {
         network = (RoadNetwork)target;
@@ -57,6 +60,7 @@ public class RoadNetworkEditor : Editor
         roadGO.transform.SetParent(network.transform); 
         currentRoad = roadGO.AddComponent<Road>();
         currentRoad.isMajorRoad = isMajor;
+        currentRoad.width = isMajor ? majorRoadWidth : districtRoadWidth;
         currentRoad.meshFilter = roadGO.AddComponent<MeshFilter>();
         roadGO.AddComponent<MeshRenderer>().material = 
             isMajor ? network.majorRoadMaterial : network.districtRoadMaterial;
@@ -73,6 +77,14 @@ public class RoadNetworkEditor : Editor
         {
             Undo.RecordObject(currentRoad, "Add Road Point");
             Vector3 snappedPoint = SnapToExisting(hit.point);
+            if (currentRoad.isMajorRoad)
+            {
+                snappedPoint.y += 0.03f;
+            }
+            else
+            {
+                snappedPoint.y += 0.01f;
+            }
             currentRoad.points.Add(snappedPoint);
             
             if (currentRoad.points.Count >= 2)
