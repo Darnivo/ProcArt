@@ -28,6 +28,7 @@ public class RoadEditor : Editor
                     newPoint.y += 0.01f;
                 }
                 road.points.Add(newPoint);
+                road.curveStrengths.Add(road.defaultCurveStrength);
                 Event.current.Use();
             }
         }
@@ -38,8 +39,9 @@ public class RoadEditor : Editor
 
         for (int i = 0; i < road.points.Count; i++)
         {
-            // Draw position handle
             Vector3 point = handleTransform.TransformPoint(road.points[i]);
+            
+            // Position handle
             EditorGUI.BeginChangeCheck();
             point = Handles.PositionHandle(point, handleRotation);
             if (EditorGUI.EndChangeCheck())
@@ -49,16 +51,27 @@ public class RoadEditor : Editor
                 road.GenerateRoadMesh();
             }
 
-            // Draw sphere handle
-            Handles.color = Color.yellow;
-            float handleSize = HandleUtility.GetHandleSize(point) * 0.15f;
+            // Curve strength handle
+            float strength = i < road.curveStrengths.Count ? road.curveStrengths[i] : 1f;
+            Handles.Label(point + Vector3.up * 0.5f, $"Curve: {strength:F1}");
             
-            //deletion logic:
-            if (Handles.Button(point, handleRotation, handleSize, handleSize, Handles.SphereHandleCap)) {
-                Undo.RecordObject(road, "Delete Road Point");
-                road.points.RemoveAt(i);
+            EditorGUI.BeginChangeCheck();
+            strength = Handles.ScaleSlider(
+                strength, 
+                point, 
+                Vector3.forward, 
+                handleRotation, 
+                1f, 
+                0.1f
+            );
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(road, "Adjust Curve Strength");
+                if (i >= road.curveStrengths.Count)
+                    road.curveStrengths.Add(strength);
+                else
+                    road.curveStrengths[i] = Mathf.Clamp(strength, 0f, 2f);
                 road.GenerateRoadMesh();
-                Event.current.Use();
             }
         }
     }
