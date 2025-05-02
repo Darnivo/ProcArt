@@ -117,6 +117,9 @@ public class House : MonoBehaviour
                         continue;
                     }
 
+                    bool isPositionHandled = false;
+                    // For mirroring last edge walls 
+
                     // CORNER LOGIC - Modified to use edge prefabs between houses
                     if (isCorner)
                     {
@@ -156,6 +159,11 @@ public class House : MonoBehaviour
                                 prefabToInstantiate = cornerEdgeWallPrefab;
                                 if (w == 0) rotation = Quaternion.Euler(0, 0, 0);
                                 else if (w == widthSegments - 1) rotation = Quaternion.Euler(0, 0, 0); 
+
+                                Vector3 customScale = new Vector3(1, 1, -1);
+                                if (w == widthSegments - 1) customScale = new Vector3(-1, 1, -1);
+                                InstantiatePrefab(prefabToInstantiate, localPosition, rotation, customScale);
+                                isPositionHandled = true;
                             }
                         }
                     }
@@ -220,7 +228,7 @@ public class House : MonoBehaviour
                         rotation = Quaternion.Euler(0, 0, 0);
                     }
 
-                    if (prefabToInstantiate != null)
+                    if (!isPositionHandled && prefabToInstantiate != null )
                         InstantiatePrefab(prefabToInstantiate, localPosition, rotation);
                 }
                 else // Roof level
@@ -249,6 +257,7 @@ public class House : MonoBehaviour
                                 roofPrefabToInstantiate = GetRandomPrefab(sideRoofEdgePrefabs);
                                 if (w == 0) rotation = Quaternion.Euler(0, 0, 0);
                                 else if (w == widthSegments - 1) rotation = Quaternion.Euler(0, 180, 0);
+                                if (w == widthSegments - 1) customScale = new Vector3(1, 1, -1);
                             }
                         }
                         // Back face corners (l == lengthSegments - 1)
