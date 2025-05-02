@@ -14,6 +14,7 @@ public enum HouseType
 
 public class NeighborhoodCreator : MonoBehaviour
 {
+
     [Header("Path Settings")]
     [Tooltip("The starting point of the neighborhood path.")]
     public Vector3 pathStart = Vector3.zero;
@@ -37,6 +38,10 @@ public class NeighborhoodCreator : MonoBehaviour
     [Range(3, 5)]
     public int maxHouseHeight = 5;
     [Tooltip("Random seed for deterministic generation of the neighborhood and houses.")]
+
+    public bool randomizeYScale = false;
+    [Tooltip("Toggle to randomize the Y scale of houses. adding house variance")]
+
     public int seed = 0;
 
     [Header("Prefab References")]
@@ -191,6 +196,15 @@ public class NeighborhoodCreator : MonoBehaviour
             house.houseLength = houseLength;
             house.houseWidth = houseWidth;
             house.houseHeight = Random.Range(minHouseHeight, maxHouseHeight + 1); // Random height within range
+
+            // Apply random Y scale if enabled
+            if (randomizeYScale)
+            {
+                // Randomize based on y scale in 0.05 increments
+                float randomScaleY = 1f + (Mathf.Floor((float)new System.Random(seed + i).NextDouble() * 9) * 0.05f - 0.2f);
+                houseGO.transform.localScale = new Vector3(1, randomScaleY, 1);
+            }
+
             house.seed = seed + i + 1; // Generate a unique seed for each house
 
             // Assign prefab references to the House script
