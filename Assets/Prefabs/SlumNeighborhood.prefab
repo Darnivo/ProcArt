@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517c274272bbd394a8928d4e336ffc6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pathStart: {x: 20, y: 0, z: 0}
+  pathStart: {x: 20, y: 0, z: 5}
   pathEnd: {x: 20, y: 0, z: 40}
   IsASlum: 1
   numberOfHouses: 5

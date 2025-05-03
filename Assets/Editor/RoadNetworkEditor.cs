@@ -8,8 +8,8 @@ public class RoadNetworkEditor : Editor
     private Road currentRoad;
     private bool isCreatingRoad;
 
-    public float majorRoadWidth = 1.5f;
-    public float districtRoadWidth = 0.8f;
+    public float majorRoadWidth = 2.5f;
+    public float districtRoadWidth = 1.8f;
 
     void OnSceneGUI()
     {
@@ -77,14 +77,27 @@ public class RoadNetworkEditor : Editor
         {
             Undo.RecordObject(currentRoad, "Add Road Point");
             Vector3 snappedPoint = SnapToExisting(hit.point);
-            if (currentRoad.isMajorRoad)
+            if (hit.collider != null && hit.collider.GetComponent<Road>() != null)
             {
-                snappedPoint.y += 0.03f;
+                snappedPoint.y = -0.02f;
+            }
+            else if (currentRoad.isMajorRoad)
+            {
+                snappedPoint.y += 0.05f;
             }
             else
             {
                 snappedPoint.y += 0.01f;
             }
+
+            // if (currentRoad.isMajorRoad)
+            // {
+            //     snappedPoint.y += 0.05f;
+            // }
+            // else
+            // {
+            //     snappedPoint.y += 0.01f;
+            // }
             currentRoad.points.Add(snappedPoint);
             
             if (currentRoad.points.Count >= 2)

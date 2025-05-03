@@ -45,10 +45,10 @@ public class NeighborhoodCreator : MonoBehaviour
     [Range(2, 4)] // House width is 2 or 4 units (1 or 2 prefab widths)
     public int houseWidth = 2;
     [Tooltip("The minimum height of each house in prefab units (including roof level).")]
-    [Range(3, 5)]
+    [Range(2, 5)]
     public int minHouseHeight = 3;
     [Tooltip("The maximum height of each house in prefab units (including roof level).")]
-    [Range(3, 5)]
+    [Range(2, 5)]
     public int maxHouseHeight = 5;
     [Tooltip("Random seed for deterministic generation of the neighborhood and houses.")]
 
@@ -114,7 +114,7 @@ public class NeighborhoodCreator : MonoBehaviour
             Debug.LogError("Minimum house height cannot be greater than maximum house height.");
             return;
         }
-        if (minHouseHeight < 3 || maxHouseHeight > 5)
+        if (minHouseHeight < 2 || maxHouseHeight > 5)
         {
              Debug.LogError("House height must be between 3 and 5 prefab units (inclusive).");
             return;
