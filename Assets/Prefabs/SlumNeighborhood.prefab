@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6424034949047050746
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1774302028304114198}
+  - component: {fileID: 2744242746650991668}
+  m_Layer: 0
+  m_Name: SlumNeighborhood
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1774302028304114198
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6424034949047050746}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.62323, y: 11.598803, z: 5.981936}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2744242746650991668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6424034949047050746}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 517c274272bbd394a8928d4e336ffc6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathStart: {x: 20, y: 0, z: 0}
+  pathEnd: {x: 20, y: 0, z: 40}
+  IsASlum: 1
+  numberOfHouses: 5
+  minimumHouseLength: 8
+  houseWidth: 4
+  minHouseHeight: 3
+  maxHouseHeight: 4
+  randomizeYScale: 1
+  seed: 0
+  normalWallPrefab: {fileID: 919132149155446097, guid: a1088908c93b34248bd16df5eec0b0d0, type: 3}
+  decoratedWallPrefab: {fileID: 919132149155446097, guid: c24593eb78399984d86a9847e82c9c8f, type: 3}
+  balconyWallPrefabs:
+  - {fileID: 919132149155446097, guid: 71564ad9f13ac7b48a2cdcfb64af1ab6, type: 3}
+  - {fileID: 919132149155446097, guid: e19f93ea9dd60854aa7df7e12df3e302, type: 3}
+  balconySelection: 0
+  doorPrefabs:
+  - {fileID: 919132149155446097, guid: 2b66679993270c04c9f15098e8c87ec4, type: 3}
+  windowPrefabs:
+  - {fileID: 919132149155446097, guid: 71564ad9f13ac7b48a2cdcfb64af1ab6, type: 3}
+  - {fileID: 919132149155446097, guid: e19f93ea9dd60854aa7df7e12df3e302, type: 3}
+  windowSelection: 0
+  roundedCornerWallPrefabs:
+  - {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  straightCornerWallPrefabs:
+  - {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  sideRoofPrefabs:
+  - {fileID: 919132149155446097, guid: 94e2bd5fcd2d2194faf8c86ca6b9ac85, type: 3}
+  - {fileID: 919132149155446097, guid: 090a818ce9088ce489efee51cf25b8bc, type: 3}
+  - {fileID: 919132149155446097, guid: 39111ed652e9b324e88712e2ea56c77a, type: 3}
+  roundedCornerRoofPrefab: {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  straightCornerRoofPrefab: {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  topRoofPrefab: {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  specialTwoUnitRoofPrefab: {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  sideRoofEdgePrefabs:
+  - {fileID: 919132149155446097, guid: ab16a8d37e0c6914c8252841d2de06c6, type: 3}
+  - {fileID: 919132149155446097, guid: 8996ba12933941842a9834f580b08f36, type: 3}
+  cornerEdgeWallPrefab: {fileID: 919132149155446097, guid: 4b7ded8e2fd754b4db5ee1b015e37159, type: 3}
+  middleEdgeWallPrefab: {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}
+  topRoofEdgePrefab: {fileID: 7007994148765884002, guid: 8121e72bd241ea74680834f4fab23673, type: 3}

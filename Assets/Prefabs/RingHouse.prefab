@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4597079022225969778
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1493239950035046714}
+  - component: {fileID: 7857040213765599715}
+  m_Layer: 0
+  m_Name: RingHouse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1493239950035046714
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4597079022225969778}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7857040213765599715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4597079022225969778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4c7a640751c8a141abc235891897a70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cornerPoints:
+  - {x: -10, y: 0, z: 10}
+  - {x: 10, y: 0, z: 10}
+  - {x: 10, y: 0, z: -10}
+  - {x: -10, y: 0, z: -10}
+  minHouseHeight: 2
+  maxHouseHeight: 5
+  seed: 0
+  gapSideIndex: 3
+  gapWidthUnits: 8
+  normalWallPrefab: {fileID: 919132149155446097, guid: 41e30ae09fe1c4a4b926c8b338228918, type: 3}
+  doorPrefab: {fileID: 919132149155446097, guid: f0ef80b4fb2346e438c0db94a332afd1, type: 3}
+  windowPrefabs:
+  - {fileID: 919132149155446097, guid: 83e15d27d84726e448012a9155c9d4dc, type: 3}
+  - {fileID: 919132149155446097, guid: 55b975b3b9d9ee949b1635699d4e57ae, type: 3}
+  roundedCornerWallPrefabs:
+  - {fileID: 919132149155446097, guid: dfe9b2b6c4262164f8b35ac2878a5436, type: 3}
+  - {fileID: 919132149155446097, guid: f9265665764afdd49be7495327b1a18d, type: 3}
+  roundedCornerRoofPrefab: {fileID: 919132149155446097, guid: 42779dffc5ead17449348f408f65ef50, type: 3}
+  sideRoofPrefabs:
+  - {fileID: 919132149155446097, guid: ccbdd3717a9961a4baaea610954ffdb2, type: 3}
+  - {fileID: 919132149155446097, guid: bce2af4fcd0073349a7a633c3a93cd5a, type: 3}
+  - {fileID: 919132149155446097, guid: 93df08f1c72427b4ca2583b68cfa0fc4, type: 3}
+  innerCornerWallPrefab: {fileID: 919132149155446097, guid: ad37d7c8107ec1e4ca138f589c36e227, type: 3}
+  innerCornerRoofPrefab: {fileID: 919132149155446097, guid: 92a373bc354e04448a0d2512d0d836b5, type: 3}
