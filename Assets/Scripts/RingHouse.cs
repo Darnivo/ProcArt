@@ -400,6 +400,25 @@ public class RingHouse : MonoBehaviour
                     Quaternion innerWallRotation = wallRotation * Quaternion.Euler(0, 180, 0);
                     InstantiatePrefabWorld(innerPrefabToInstantiate, innerWallPos, innerWallRotation, wallGO.transform);
                 }
+
+                // Add corner pieces at gap edges
+                if (isGapSide)
+                {
+                    // START of gap: Place corner after last normal segment before gap
+                    if (i == gapStartIndex - 1)
+                    {
+                        GenerateGapEdgeCorners(segmentBasePos, rightDir, h, 
+                            Quaternion.LookRotation(rightDir, Vector3.up),       // Outer rotation
+                            Quaternion.LookRotation(-rightDir, Vector3.up));    // Inner rotation
+                    }
+                    // END of gap: Place corner before first normal segment after gap
+                    else if (i == gapEndIndex)
+                    {
+                        GenerateGapEdgeCorners(segmentBasePos, rightDir, h,
+                            Quaternion.LookRotation(-rightDir, Vector3.up),     // Outer rotation
+                            Quaternion.LookRotation(rightDir, Vector3.up));     // Inner rotation
+                    }
+                }
             } // End loop through segments (i)
         } // End loop through height (h)
 
@@ -429,6 +448,38 @@ public class RingHouse : MonoBehaviour
              InstantiatePrefabWorld(doorPrefab, doorPos, wallRotation, wallGO.transform);
              // Debug.Log($"Forced door placement on Wall {sideIndex}");
          }
+    }
+
+    private void GenerateGapEdgeCorners(Vector3 segmentBasePos, Vector3 rightDir, int heightLevel, 
+                                   Quaternion outerRotation, Quaternion innerRotation)
+    {
+        bool isRoof = (heightLevel == currentHouseHeight - 1);
+        
+        // Outer corner position and prefab
+        Vector3 outerPos = segmentBasePos + 
+                        (rightDir * (PREFAB_WIDTH / 2f)) + 
+                        (Vector3.up * heightLevel * PREFAB_HEIGHT);
+        GameObject outerPrefab = isRoof ? 
+            roundedCornerRoofPrefab : 
+            GetRandomPrefab(roundedCornerWallPrefabs);
+
+        // Inner corner position and prefab
+        Vector3 innerPos = segmentBasePos - 
+                        (rightDir * (PREFAB_WIDTH / 2f)) + 
+                        (Vector3.up * heightLevel * PREFAB_HEIGHT);
+        GameObject innerPrefab = isRoof ? 
+            innerCornerRoofPrefab : 
+            innerCornerWallPrefab;
+
+        // Instantiate both corners
+        if (outerPrefab != null)
+        {
+            InstantiatePrefabWorld(outerPrefab, outerPos, outerRotation, wallsContainer);
+        }
+        if (innerPrefab != null)
+        {
+            InstantiatePrefabWorld(innerPrefab, innerPos, innerRotation, wallsContainer);
+        }
     }
 
     /// <summary>
