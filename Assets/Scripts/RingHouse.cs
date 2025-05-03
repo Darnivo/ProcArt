@@ -344,8 +344,8 @@ public class RingHouse : MonoBehaviour
                                      + sideDirection * (PREFAB_WIDTH / 2f); // Offset to the center of the segment slot
 
                 // --- Generate Outer Wall Segment ---
-                Vector3 outerWallPos = segmentBasePos - rightDir * (PREFAB_WIDTH / 2f); // Offset outwards (left if looking along sideDir)
-                outerWallPos += Vector3.up * h * PREFAB_HEIGHT; // Add height offset
+                Vector3 outerWallPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f);
+                outerWallPos += Vector3.up * h * PREFAB_HEIGHT;
 
                 GameObject outerPrefabToInstantiate = null;
                 if (isRoofLevel)
@@ -376,8 +376,8 @@ public class RingHouse : MonoBehaviour
                 }
 
                 // --- Generate Inner Wall Segment ---
-                Vector3 innerWallPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f); // Offset inwards (right if looking along sideDir)
-                innerWallPos += Vector3.up * h * PREFAB_HEIGHT; // Add height offset
+                Vector3 innerWallPos = segmentBasePos - rightDir * (PREFAB_WIDTH / 2f);
+                innerWallPos += Vector3.up * h * PREFAB_HEIGHT;
 
                 GameObject innerPrefabToInstantiate = null;
                 if (isRoofLevel)
@@ -412,7 +412,7 @@ public class RingHouse : MonoBehaviour
                                      + sideDirection * PREFAB_WIDTH
                                      + sideDirection * (doorSegmentIndex * PREFAB_WIDTH)
                                      + sideDirection * (PREFAB_WIDTH / 2f);
-             Vector3 doorPos = segmentBasePos - rightDir * (PREFAB_WIDTH / 2f); // Outer wall position
+             Vector3 doorPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f); // Outer wall position
 
              // Find and replace the existing wall prefab at that location on the ground floor
              Collider[] colliders = Physics.OverlapSphere(doorPos, PREFAB_WIDTH * 0.1f); // Small overlap sphere
