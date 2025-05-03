@@ -29,6 +29,9 @@ public class NeighborhoodCreator : MonoBehaviour
     [Tooltip("The ending point of the neighborhood path.")]
     public Vector3 pathEnd = new Vector3(0, 0, 10); // Default path length
 
+    [Header("Neighborhood Settings")]
+    public bool IsASlum = false; // Toggle for slum generation
+
     
 
     [Header("Generation Settings")]
@@ -212,6 +215,11 @@ public class NeighborhoodCreator : MonoBehaviour
             else if (i == numberOfHouses - 1)
             {
                 houseType = HouseType.Last;
+            }
+
+            if (IsASlum)
+            {
+                houseType = HouseType.Middle;
             }
 
             // Calculate house position (center of the house along the path)
