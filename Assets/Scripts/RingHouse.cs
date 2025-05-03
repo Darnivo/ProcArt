@@ -313,8 +313,8 @@ public class RingHouse : MonoBehaviour
         }
         else if (isGapSide)
         {
-             Debug.LogWarning($"Side {sideIndex} is too short ({numWallSegments} segments) to contain the requested gap ({gapWidthSegments} segments). Skipping gap.");
-             isGapSide = false; // Treat as normal side if gap doesn't fit
+            Debug.LogWarning($"Side {sideIndex} is too short ({numWallSegments} segments) to contain the requested gap ({gapWidthSegments} segments). Skipping gap.");
+            isGapSide = false; // Treat as normal side if gap doesn't fit
         }
 
         bool placedDoorOnSide = false; // Track door placement for the outer wall
@@ -339,9 +339,20 @@ public class RingHouse : MonoBehaviour
 
                 // Calculate the base position for the center of this segment slot along the side's centerline
                 Vector3 segmentBasePos = startPosWorld
-                                     + sideDirection * PREFAB_WIDTH // Offset past start corner structure center
-                                     + sideDirection * (i * PREFAB_WIDTH) // Offset to the start of this segment slot
-                                     + sideDirection * (PREFAB_WIDTH / 2f); // Offset to the center of the segment slot
+                                    + sideDirection * PREFAB_WIDTH // Offset past start corner structure center
+                                    + sideDirection * (i * PREFAB_WIDTH) // Offset to the start of this segment slot
+                                    + sideDirection * (PREFAB_WIDTH / 2f); // Offset to the center of the segment slot
+
+                // MODIFIED: Check if this segment is directly adjacent to the gap edges
+                bool isGapEdge = isGapSide && (i == gapStartIndex - 1 || i == gapEndIndex);
+                
+                if (isGapEdge)
+                {
+                    // Generate corner pieces at gap edges
+                    bool isStartEdge = (i == gapStartIndex - 1);
+                    GenerateGapEdgeRoundedCorners(segmentBasePos, sideDirection, rightDir, h, isStartEdge, wallGO.transform);
+                    continue; // Skip the normal wall generation for this segment
+                }
 
                 // --- Generate Outer Wall Segment ---
                 Vector3 outerWallPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f);
@@ -391,97 +402,103 @@ public class RingHouse : MonoBehaviour
                 }
                 else // Upper floors (not roof)
                 {
-                     innerPrefabToInstantiate = upperFloorWallPrefab;
+                    innerPrefabToInstantiate = upperFloorWallPrefab;
                 }
 
-                 if (innerPrefabToInstantiate != null)
+                if (innerPrefabToInstantiate != null)
                 {
                     // Inner walls face inwards, so rotate 180 degrees around Y relative to the main wall rotation
                     Quaternion innerWallRotation = wallRotation * Quaternion.Euler(0, 180, 0);
                     InstantiatePrefabWorld(innerPrefabToInstantiate, innerWallPos, innerWallRotation, wallGO.transform);
                 }
-
-                // Add corner pieces at gap edges
-                if (isGapSide)
-                {
-                    // START of gap: Place corner after last normal segment before gap
-                    if (i == gapStartIndex - 1)
-                    {
-                        GenerateGapEdgeCorners(segmentBasePos, rightDir, h, 
-                            Quaternion.LookRotation(rightDir, Vector3.up),       // Outer rotation
-                            Quaternion.LookRotation(-rightDir, Vector3.up));    // Inner rotation
-                    }
-                    // END of gap: Place corner before first normal segment after gap
-                    else if (i == gapEndIndex)
-                    {
-                        GenerateGapEdgeCorners(segmentBasePos, rightDir, h,
-                            Quaternion.LookRotation(-rightDir, Vector3.up),     // Outer rotation
-                            Quaternion.LookRotation(rightDir, Vector3.up));     // Inner rotation
-                    }
-                }
             } // End loop through segments (i)
         } // End loop through height (h)
 
-         // Ensure at least one door is placed on non-gap outer ground floors if not already placed randomly
-         if (!isGapSide && !placedDoorOnSide && numWallSegments > 0 && currentHouseHeight > 0)
-         {
-             int doorSegmentIndex = random.Next(0, numWallSegments);
-             // Calculate position again for the chosen segment on outer ground floor
-              Vector3 segmentBasePos = startPosWorld
-                                     + sideDirection * PREFAB_WIDTH
-                                     + sideDirection * (doorSegmentIndex * PREFAB_WIDTH)
-                                     + sideDirection * (PREFAB_WIDTH / 2f);
-             Vector3 doorPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f); // Outer wall position
+        // Ensure at least one door is placed on non-gap outer ground floors if not already placed randomly
+        if (!isGapSide && !placedDoorOnSide && numWallSegments > 0 && currentHouseHeight > 0)
+        {
+            int doorSegmentIndex = random.Next(0, numWallSegments);
+            // Calculate position again for the chosen segment on outer ground floor
+            Vector3 segmentBasePos = startPosWorld
+                                    + sideDirection * PREFAB_WIDTH
+                                    + sideDirection * (doorSegmentIndex * PREFAB_WIDTH)
+                                    + sideDirection * (PREFAB_WIDTH / 2f);
+            Vector3 doorPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f); // Outer wall position
 
-             // Find and replace the existing wall prefab at that location on the ground floor
-             Collider[] colliders = Physics.OverlapSphere(doorPos, PREFAB_WIDTH * 0.1f); // Small overlap sphere
-             foreach (var col in colliders)
-             {
-                 if (col.transform.parent == wallGO.transform && Mathf.Abs(col.transform.position.y - 0) < PREFAB_HEIGHT * 0.1f)
-                 {
-                     if (Application.isEditor && !Application.isPlaying) DestroyImmediate(col.gameObject);
-                     else Destroy(col.gameObject);
-                     break;
-                 }
-             }
-             // Instantiate the door
-             InstantiatePrefabWorld(doorPrefab, doorPos, wallRotation, wallGO.transform);
-             // Debug.Log($"Forced door placement on Wall {sideIndex}");
-         }
+            // Find and replace the existing wall prefab at that location on the ground floor
+            Collider[] colliders = Physics.OverlapSphere(doorPos, PREFAB_WIDTH * 0.1f); // Small overlap sphere
+            foreach (var col in colliders)
+            {
+                if (col.transform.parent == wallGO.transform && Mathf.Abs(col.transform.position.y - 0) < PREFAB_HEIGHT * 0.1f)
+                {
+                    if (Application.isEditor && !Application.isPlaying) DestroyImmediate(col.gameObject);
+                    else Destroy(col.gameObject);
+                    break;
+                }
+            }
+            // Instantiate the door
+            InstantiatePrefabWorld(doorPrefab, doorPos, wallRotation, wallGO.transform);
+            // Debug.Log($"Forced door placement on Wall {sideIndex}");
+        }
     }
-
-    private void GenerateGapEdgeCorners(Vector3 segmentBasePos, Vector3 rightDir, int heightLevel, 
-                                   Quaternion outerRotation, Quaternion innerRotation)
+    private void GenerateGapEdgeRoundedCorners(Vector3 segmentBasePos, Vector3 sideDirection, Vector3 rightDir, 
+                                          int heightLevel, bool isStartEdge, Transform parent)
     {
         bool isRoof = (heightLevel == currentHouseHeight - 1);
         
-        // Outer corner position and prefab
-        Vector3 outerPos = segmentBasePos + 
-                        (rightDir * (PREFAB_WIDTH / 2f)) + 
-                        (Vector3.up * heightLevel * PREFAB_HEIGHT);
-        GameObject outerPrefab = isRoof ? 
-            roundedCornerRoofPrefab : 
-            GetRandomPrefab(roundedCornerWallPrefabs);
-
-        // Inner corner position and prefab
-        Vector3 innerPos = segmentBasePos - 
-                        (rightDir * (PREFAB_WIDTH / 2f)) + 
-                        (Vector3.up * heightLevel * PREFAB_HEIGHT);
-        GameObject innerPrefab = isRoof ? 
-            innerCornerRoofPrefab : 
-            innerCornerWallPrefab;
-
-        // Instantiate both corners
+        // Calculate positions for the corners
+        Vector3 outerPos = segmentBasePos + rightDir * (PREFAB_WIDTH / 2f) + (Vector3.up * heightLevel * PREFAB_HEIGHT);
+        Vector3 innerPos = segmentBasePos - rightDir * (PREFAB_WIDTH / 2f) + (Vector3.up * heightLevel * PREFAB_HEIGHT);
+        
+        // Choose the appropriate prefabs
+        GameObject outerPrefab = isRoof ? roundedCornerRoofPrefab : GetRandomPrefab(roundedCornerWallPrefabs);
+        GameObject innerPrefab = isRoof ? roundedCornerRoofPrefab : GetRandomPrefab(roundedCornerWallPrefabs); // Using rounded corners for both
+        
+        // IMPORTANT: These rotation values may need adjustment based on your specific prefab orientations
+        Quaternion outerRotation, innerRotation;
+        
+        if (isStartEdge)
+        {
+            // Gap start edge rotations - ADJUST THESE VALUES AS NEEDED
+            // outerRotation = Quaternion.LookRotation(rightDir, Vector3.up); // Outer corner facing into gap
+            outerRotation = Quaternion.LookRotation(rightDir, Vector3.up) * Quaternion.Euler(0, 90, 0);
+            innerRotation = Quaternion.LookRotation(-rightDir, Vector3.up); // Inner corner facing into gap
+            
+            // ROTATION ADJUSTMENT MARKERS - Easily find these lines to adjust rotations
+            // OUTER_START_ROTATION_ADJUSTMENT - You can modify the line above by adding Quaternion.Euler(0, YOUR_ANGLE, 0)
+            // INNER_START_ROTATION_ADJUSTMENT - You can modify the line above by adding Quaternion.Euler(0, YOUR_ANGLE, 0)
+        }
+        else
+        {
+            // Gap end edge rotations - ADJUST THESE VALUES AS NEEDED
+            // outerRotation = Quaternion.LookRotation(-sideDirection, Vector3.up); // Outer corner at gap end
+            outerRotation = Quaternion.LookRotation(rightDir, Vector3.up) * Quaternion.Euler(0, 0, 0);
+            innerRotation = Quaternion.LookRotation(-sideDirection, Vector3.up); // Inner corner at gap end
+            
+            // ROTATION ADJUSTMENT MARKERS - Easily find these lines to adjust rotations
+            // OUTER_END_ROTATION_ADJUSTMENT - You can modify the line above by adding Quaternion.Euler(0, YOUR_ANGLE, 0)
+            // INNER_END_ROTATION_ADJUSTMENT - You can modify the line above by adding Quaternion.Euler(0, YOUR_ANGLE, 0)
+        }
+        
+        // Instantiate the prefabs if available
         if (outerPrefab != null)
         {
-            InstantiatePrefabWorld(outerPrefab, outerPos, outerRotation, wallsContainer);
+            GameObject outerCorner = InstantiatePrefabWorld(outerPrefab, outerPos, outerRotation, parent);
+            if (outerCorner != null)
+            {
+                outerCorner.name = isStartEdge ? "GapStart_OuterCorner_h" + heightLevel : "GapEnd_OuterCorner_h" + heightLevel;
+            }
         }
+        
         if (innerPrefab != null)
         {
-            InstantiatePrefabWorld(innerPrefab, innerPos, innerRotation, wallsContainer);
+            GameObject innerCorner = InstantiatePrefabWorld(innerPrefab, innerPos, innerRotation, parent);
+            if (innerCorner != null)
+            {
+                innerCorner.name = isStartEdge ? "GapStart_InnerCorner_h" + heightLevel : "GapEnd_InnerCorner_h" + heightLevel;
+            }
         }
     }
-
     /// <summary>
     /// Clears all generated child objects (corners and walls).
     /// </summary>
