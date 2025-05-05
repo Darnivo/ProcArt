@@ -46,6 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allRoads: []
   intersectionPrefab: {fileID: 7007994148765884002, guid: 84eec72f3505707449665e4daf148025, type: 3}
-  majorRoadMaterial: {fileID: 2100000, guid: 2b46f497bd755714e8c4be2ebe1a0b03, type: 2}
-  districtRoadMaterial: {fileID: 2100000, guid: 46b4eb95868afaf4285cad894f4fc7e9, type: 2}
+  majorRoadMaterial: {fileID: 2100000, guid: 8103b162c98852b4aaada47b012f988e, type: 2}
+  districtRoadMaterial: {fileID: 2100000, guid: b5d434b6712dd3441aef1195b53534a0, type: 2}
   roadSnapDistance: 2

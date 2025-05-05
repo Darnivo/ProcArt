@@ -11,6 +11,9 @@ public class Road : MonoBehaviour
     public MeshFilter meshFilter;
     [Range(0.1f, 5f)] public float curveThreshold = 2f;
     [Range(0f, 2f)] public float defaultCurveStrength = 1f;
+    [Range(0.1f, 10f)] public float uvScale = 0.5f; // Add UV scaling control
+    [Tooltip("Use consistent texture width across the road")]
+    public bool uniformWidthMapping = true; // Option for uniform texture width
     private float lastThreshold = -1;
 
     private void Update()
@@ -110,22 +113,34 @@ public class Road : MonoBehaviour
             vertices.Add(subdividedPoints[i] + right);
             vertices.Add(subdividedPoints[i] - right);
 
-            // Fixed UVs
-            float uvU = totalLength > 0 ? cumulativeLengths[i] / totalLength : 0;
-            uvs.Add(new Vector2(uvU, 1));  // Top edge
-            uvs.Add(new Vector2(uvU, 0));  // Bottom edge
+            // Calculate UV coordinates with proper tiling
+            float uvU = totalLength > 0 ? (cumulativeLengths[i] / totalLength) * totalLength * uvScale / width : 0;
+            
+            // Uniform texture width across all road sections
+            if (uniformWidthMapping)
+            {
+                uvs.Add(new Vector2(uvU, 0));  // Right edge
+                uvs.Add(new Vector2(uvU, 1));  // Left edge
+            }
+            // Variable width mapping (will stretch on curves)
+            else
+            {
+                float uvV = 0.5f * i / (float)(subdividedPoints.Count - 1);
+                uvs.Add(new Vector2(uvU, 0));  // Right edge
+                uvs.Add(new Vector2(uvU, 1));  // Left edge
+            }
 
             // Create triangles
             if (i > 0)
             {
                 int count = vertices.Count;
-                triangles.Add(count - 4);
-                triangles.Add(count - 2);
-                triangles.Add(count - 3);
+                triangles.Add(count - 4); // Top left
+                triangles.Add(count - 2); // Bottom left
+                triangles.Add(count - 3); // Bottom right
 
-                triangles.Add(count - 2);
-                triangles.Add(count - 1);
-                triangles.Add(count - 3);
+                triangles.Add(count - 2); // Bottom left 
+                triangles.Add(count - 1); // Top right
+                triangles.Add(count - 3); // Bottom right
             }
         }
 
