@@ -15,13 +15,14 @@ public class House : MonoBehaviour
     public float houseLength; // Length along the path direction
     [HideInInspector] // Hide in inspector, set by NeighborhoodCreator
     public int houseWidth; // Width perpendicular to the path direction (2 or 4)
-    [HideInInspector] // Hide in inspector, set by NeighborhoodCreator
+    // [HideInInspector] // Hide in inspector, set by NeighborhoodCreator
     public int houseHeight; // Height in prefab units (3-5)
-    [HideInInspector] // Hide in inspector, set by NeighborhoodCreator
+    // [HideInInspector] // Hide in inspector, set by NeighborhoodCreator
     public int seed; // Deterministic random seed for this house
 
     // Prefab references (assigned by NeighborhoodCreator)
-    [HideInInspector] public GameObject normalWallPrefab;
+    // [HideInInspector] 
+    public GameObject normalWallPrefab;
     [HideInInspector] public GameObject decoratedWallPrefab;
     [HideInInspector] public GameObject[] balconyWallPrefabs;
     [HideInInspector] public GameObject[] doorPrefabs;
